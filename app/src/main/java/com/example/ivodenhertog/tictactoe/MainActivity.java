@@ -94,4 +94,6 @@ public class MainActivity extends AppCompatActivity {
         game = new Game();
         setContentView(R.layout.activity_main);
     }
+
+    // Todo: Create switch mode from Player vs Player to Player vs Computer.
 }

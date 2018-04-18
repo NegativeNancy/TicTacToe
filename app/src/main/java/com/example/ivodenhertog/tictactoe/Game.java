@@ -34,7 +34,9 @@ class Game {
     }
 
     public void checkScore() {
-
+        // Todo: create score check with win conditions
     }
+
+    // Todo: Create algorithm for Player versus Computer
 
 }

@@ -33,5 +33,8 @@ class Game {
         }
     }
 
+    public void checkScore() {
+
+    }
 
 }

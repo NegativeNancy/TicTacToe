@@ -1,9 +1,10 @@
 package com.example.ivodenhertog.tictactoe;
 
-import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
@@ -21,56 +22,75 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         game = new Game();
-        for (int i=0, l=gridId.length; i<l; i++ ) {
-            String buttonId = "button" + (i+1);
+        for (int i = 0, l = gridId.length; i < l; i++ ) {
+            String buttonId = "button" + (i + 1);
             int resId = getResources().getIdentifier(buttonId, "id", getPackageName());
             gridId[i] = findViewById(resId).getId();
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.reset:
+                resetClicked();
+                return(true);
+            case R.id.about:
+                Toast.makeText(this, R.string.about_toast, Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.exit:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public void tileClicked(View view) {
 
-//        Get id of pressed button and use id to get number of the button.
+        // Get id of pressed button and use id to get number of the button.
         int id = view.getId();
-        for (int i=0, l=gridId.length; i<+l; i++) {
+        for (int i = 0, l = gridId.length; i < l; i++) {
             if (gridId[i] == id)
                 tileId = i;
         }
 
-//        Determine row and column of selected tile.
-        int row = tileId/3;
-        int col = tileId%3;
+        // Determine row and column of selected tile.
+        int row = tileId / 3;
+        int col = tileId % 3;
 
-//        Feed coordinates to Games draw method:
+        // Feed coordinates to Games draw method:
         Tile tile = game.draw(row, col);
 
-//        Depending on result of draw method, update selected button, use switch to update selected button
+        // Depending on result of draw method, update selected button, use switch to update selected button
         switch (tile) {
             case CROSS:
                 Button cross = findViewById(gridId[tileId]);
-                cross.setText("X");
-                Log.d("Step:", "Cross");
+                cross.setBackgroundResource(R.mipmap.cross);
                 break;
             case CIRCLE:
                 Button circle = findViewById(gridId[tileId]);
-                circle.setText("O");
-                Log.d("Step:", "Circle");
+                circle.setBackgroundResource(R.mipmap.circle);
                 break;
             case INVALID:
-//                Print a toast when proposed move is invalid.
-                Context context = getApplicationContext();
-                CharSequence text = "Invalid move!";
-                int duration = Toast.LENGTH_SHORT;
-
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
-                Log.e("Step:", "Invalid!");
+                // Print a toast when proposed move is invalid.
+                Toast.makeText(this, "Invalid move! Please try again!",
+                        Toast.LENGTH_SHORT).show();
+                Log.e("Error", "Invalid move");
                 break;
         }
-
     }
 
     public void resetClicked(View view) {
+        resetClicked();
+    }
+
+    private void resetClicked() {
         game = new Game();
         setContentView(R.layout.activity_main);
     }

@@ -2,6 +2,7 @@
 Application that allows the user to play a game of Tic-Tac-Toe.
 
 #### Todo:
+* Create score function with win condition
 * Player vs computer
 * Change mode from Player vs player to player vs computer
 

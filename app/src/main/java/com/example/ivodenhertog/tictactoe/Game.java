@@ -1,6 +1,8 @@
 package com.example.ivodenhertog.tictactoe;
 
-class Game {
+import java.io.Serializable;
+
+class Game implements Serializable {
     final private int BOARD_SIZE = 3;
     private Tile[][] board;
     private Boolean playerOneTurn; // true if player 1's turn
@@ -33,5 +35,18 @@ class Game {
         }
     }
 
-
+    public String reloadGame(String value, int row, int col) {
+        switch(value) {
+            case "X":
+                board[row][col] = Tile.CROSS;
+                return "Cross Set";
+            case "O":
+                board[row][col] = Tile.CIRCLE;
+                return "Circle Set";
+            case "BLANK":
+                board[row][col] = Tile.BLANK;
+                return "BLANK Set";
+        }
+        return "Error...";
+    }
 }

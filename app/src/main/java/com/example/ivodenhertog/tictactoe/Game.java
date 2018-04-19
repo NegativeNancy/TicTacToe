@@ -61,4 +61,11 @@ class Game implements Serializable {
         }
         return tile;
     }
+
+    public void checkScore() {
+        // Todo: create score check with win conditions
+    }
+
+    // Todo: Create algorithm for Player versus Computer
+
 }

@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Function that handles the onClick event.
     public void tileClicked(View view) {
-
         // Get id of pressed button and use id to get number of the button.
         int id = view.getId();
         for (int i = 0, l = gridId.length; i < l; i++) {
@@ -146,6 +145,5 @@ public class MainActivity extends AppCompatActivity {
         game = new Game();
         setContentView(R.layout.activity_main);
     }
-
     // Todo: Create switch mode from Player vs Player to Player vs Computer.
 }

@@ -9,18 +9,20 @@ class Game implements Serializable {
     private int movesPlayed;
     private Boolean gameOver;
 
+    // Create base board for game.
     public Game() {
         board = new Tile[BOARD_SIZE][BOARD_SIZE];
-        for (int i=0; i<BOARD_SIZE; i++)
-            for (int j=0; j<BOARD_SIZE; j++)
+        for (int i=0; i < BOARD_SIZE; i++)
+            for (int j=0; j < BOARD_SIZE; j++)
                 board[i][j] = Tile.BLANK;
 
         playerOneTurn = true;
         gameOver = false;
     }
 
+    // Draw check if move is valid and return answer to view.
     public Tile draw(int row, int column) {
-        if (board[row][column] == Tile.BLANK) {
+        if (board[row][column] != Tile.CROSS || board[row][column] != Tile.CIRCLE) {
             if (playerOneTurn) {
                 playerOneTurn = false;
                 board[row][column] = Tile.CROSS;
@@ -35,18 +37,28 @@ class Game implements Serializable {
         }
     }
 
-    public String reloadGame(String value, int row, int col) {
-        switch(value) {
-            case "X":
-                board[row][col] = Tile.CROSS;
-                return "Cross Set";
-            case "O":
-                board[row][col] = Tile.CIRCLE;
-                return "Circle Set";
-            case "BLANK":
-                board[row][col] = Tile.BLANK;
-                return "BLANK Set";
+    // Reload the game based on state of board that is provided. And return array of board state
+    // to be displayed on screen.
+    public int[] reloadGame() {
+        int[] tile = new int[9];
+        int count = 0;
+        for (int i=0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                if (board[i][j] == Tile.BLANK) {
+                    tile[count] = 0;
+                    count++;
+                } else if (board[i][j] == Tile.CIRCLE) {
+                    tile[count] = 1;
+                    count++;
+                } else if (board[i][j] == Tile.CROSS) {
+                    tile[count] = 2;
+                    count++;
+                } else {
+                    tile[count] = -1;
+                    count++;
+                }
+            }
         }
-        return "Error...";
+        return tile;
     }
 }

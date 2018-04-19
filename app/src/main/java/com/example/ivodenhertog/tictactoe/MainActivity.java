@@ -12,37 +12,55 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Global variables.
     private Game game;
     private int[] gridId = new int[9];
     private int tileId;
 
+    // Function that creates the base game or recreates the game after orientation change.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Recreate game when instance state is saved.
         if (savedInstanceState != null) {
             Log.i("MSG", "Loading Game State");
 
-            String[] tileNr = new String[9];
-            int[] rowNr = new int[9];
-            int[] colNr = new int[9];
-            for (int i = 0; i < 9; i++) {
-                String buttonId = "button" + i;
-                String rowId = "row" + i;
-                String colId = "col" + i;
-                tileNr[i] = savedInstanceState.getString(buttonId);
-                rowNr[i] = savedInstanceState.getInt(rowId);
-                colNr[i] = savedInstanceState.getInt(colId);
-                Log.i("Loading", "buttonNr: " + buttonId + " has value " + tileNr[i] + " rowNr " + rowNr[i] + " and colNr " + colNr[i]);
-                String set = game.reloadGame(tileNr[i], rowNr[i], colNr[i]);
-                Log.i("Tile", set);
-            }
+            // Get stored game
+            game = (Game) savedInstanceState.getSerializable("game");
 
-        } else {
+            // Use stored game to find state of tiles.
+            int[] status = game.reloadGame();
+
+            // Based on state of the tile the button will be changed to correct image.
+            for (int i = 0; i < status.length; i++) {
+                // Get Id of relevant button.
+                String buttonId = "button" + (i + 1);
+                int resId = getResources().getIdentifier(buttonId, "id", getPackageName());
+                Button b = findViewById(resId);
+
+                // Change value of the button.
+                if (status[i] == 0) {
+                    Log.i("Status", "Blank");
+                } else if (status[i] == 1) {
+                    b.setBackgroundResource(R.mipmap.circle);
+                    Log.i("Status", "Circle");
+                } else if (status[i] == 2) {
+                    b.setBackgroundResource(R.mipmap.cross);
+                    Log.i("Status", "Cross");
+                } else {
+                    Log.e("Error", "No valid return provided");
+                }
+            }
+        }
+        // Create base game on startup.
+        else {
             Log.i("MSG", "Starting New Game");
             // Initialize the game.
             game = new Game();
+
+            // Save button Id's for later use.
             for (int i = 0, l = gridId.length; i < l; i++) {
                 String buttonId = "button" + (i + 1);
                 int resId = getResources().getIdentifier(buttonId, "id", getPackageName());
@@ -51,53 +69,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Save state of the game when orientation changes.
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         Log.i("MSG", "Saving Game State");
         super.onSaveInstanceState(outState);
-        int tileNr = 0;
-
-        for (int i = 0; i < 9; i++) {
-            int buttonId = gridId[tileNr];
-            Button b = findViewById(buttonId);
-            String state = b.getText().toString();
-
-            int row = i / 3;
-            int col = i % 3;
-            Log.i("Cords", "row = " + row + " col = " + col);
-
-            String button = "button" + i;
-            String rowNr = "row" + i;
-            String colNr = "col" + i;
-
-            if (state.equals("X") || state.equals("O")) {
-                Log.i("ButtonNr", button);
-                Log.i("RowNr", rowNr);
-                Log.i("ColNr", button);
-                Log.i("State", "" + state);
-                outState.putString(button, state);
-                outState.putInt(rowNr, row);
-                outState.putInt(colNr, col);
-            } else {
-                Log.i("ButtonNr", button);
-                Log.i("RowNr", rowNr);
-                Log.i("ColNr", button);
-                Log.i("State", "BLANK");
-                outState.putString(button, "BLANK");
-                outState.putInt(rowNr, row);
-                outState.putInt(colNr, col);
-            }
-            tileNr++;
-        }
-        outState.putSerializable("tileNr", tileNr);
+        outState.putSerializable("game", game);
     }
 
+    // Function to create on-screen menu.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return(true);
     }
 
+    // Function that handles the events when menu button is pressed.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -114,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Function that handles the onClick event.
     public void tileClicked(View view) {
 
         // Get id of pressed button and use id to get number of the button.
@@ -131,14 +119,13 @@ public class MainActivity extends AppCompatActivity {
         Tile tile = game.draw(row, col);
 
         // Depending on result of draw method, update selected button, use switch to update selected button
+        Button b = (Button) findViewById(gridId[tileId]);
         switch (tile) {
             case CROSS:
-                Button cross = findViewById(gridId[tileId]);
-                cross.setBackgroundResource(R.mipmap.cross);
+                b.setBackgroundResource(R.mipmap.cross);
                 break;
             case CIRCLE:
-                Button circle = findViewById(gridId[tileId]);
-                circle.setBackgroundResource(R.mipmap.circle);
+                b.setBackgroundResource(R.mipmap.circle);
                 break;
             case INVALID:
                 // Print a toast when proposed move is invalid.
@@ -149,10 +136,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Reset function for on-screen reset button.
     public void resetClicked(View view) {
         resetClicked();
     }
 
+    // Reset function for reset via menu.
     private void resetClicked() {
         game = new Game();
         setContentView(R.layout.activity_main);

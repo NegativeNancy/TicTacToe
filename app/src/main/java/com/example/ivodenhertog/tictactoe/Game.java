@@ -4,13 +4,13 @@ import java.io.Serializable;
 
 class Game implements Serializable {
     final private int BOARD_SIZE = 3;
-    private Tile[][] board;
+    private final Tile[][] board;
     private Boolean playerOneTurn; // true if player 1's turn
     private int movesPlayed;
     private Boolean gameOver;
 
     // Create base board for game.
-    public Game() {
+    Game() {
         board = new Tile[BOARD_SIZE][BOARD_SIZE];
         for (int i=0; i < BOARD_SIZE; i++)
             for (int j=0; j < BOARD_SIZE; j++)
@@ -43,45 +43,52 @@ class Game implements Serializable {
 
     // Check if player has made a move to win the game.
     // Start from 5th move because that is the first move that can be a winning move.
-    public boolean checkScore(int col, int row, Tile tile) {
+    public GameState checkScore(int col, int row, Tile tile) {
         if (movesPlayed > 4) {
             if (checkVertical(col, row, tile)) {
                 gameOver = true;
-                return true;
+                return GameState.WON;
             } else if (checkHorizontal(col, row, tile)) {
                 gameOver = true;
-                return true;
+                return GameState.WON;
             } else if (checkDiagonal(col, row, tile)) {
                 gameOver = true;
-                return true;
-            } else
-                return false;
+                return GameState.WON;
+            } else if (movesPlayed == 9) {
+                return GameState.DRAW;
+            } else {
+                return GameState.IN_PROGRESS;
+            }
         }
-        return false;
+        return GameState.IN_PROGRESS;
     }
 
     // Check vertical if move is a winning move.
     private boolean checkVertical(int col, int row, Tile tile) {
-        if (row == 0) {
-            return board[col][row + 1] == tile && board[col][row + 2] == tile;
-        } else if (row == 1) {
-            return board[col][row + 1] == tile && board[col][row - 1] == tile;
-        } else if (row == 2) {
-            return board[col][row - 1] == tile && board[col][row - 2] == tile;
+        switch (row) {
+            case 0:
+                return board[col][row + 1] == tile && board[col][row + 2] == tile;
+            case 1:
+                return board[col][row + 1] == tile && board[col][row - 1] == tile;
+            case 2:
+                return board[col][row - 1] == tile && board[col][row - 2] == tile;
+            default:
+                return false;
         }
-        return false;
     }
 
     // Check horizontal if move is a winning move.
     private boolean checkHorizontal(int col, int row, Tile tile) {
-        if (col == 0) {
-            return board[col + 1][row] == tile && board[col + 2][row] == tile;
-        } else if (col == 1) {
-            return board[col + 1][row] == tile && board[col - 1][row] == tile;
-        } else if (col == 2) {
-            return board[col - 1][row] == tile && board[col - 2][row] == tile;
+        switch (col) {
+            case 0:
+                return board[col + 1][row] == tile && board[col + 2][row] == tile;
+            case 1:
+                return board[col + 1][row] == tile && board[col - 1][row] == tile;
+            case 2:
+                return board[col - 1][row] == tile && board[col - 2][row] == tile;
+            default:
+                return false;
         }
-        return false;
     }
 
     // Check diagonal if move is a winning move.
@@ -96,8 +103,9 @@ class Game implements Serializable {
             return board[col - 1][row + 1] == tile && board[col - 2][row + 2] == tile;
         } else if (col == 0 && row == 2) {
             return board[col + 1][row - 1] == tile && board[col + 2][row - 2] == tile;
+        } else {
+            return false;
         }
-        return false;
     }
 
     // Reload the game based on state of board that is provided.
@@ -107,18 +115,23 @@ class Game implements Serializable {
         int count = 0;
         for (int i=0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
-                if (board[i][j] == Tile.BLANK) {
-                    tile[count] = 0;
-                    count++;
-                } else if (board[i][j] == Tile.CIRCLE) {
-                    tile[count] = 1;
-                    count++;
-                } else if (board[i][j] == Tile.CROSS) {
-                    tile[count] = 2;
-                    count++;
-                } else {
-                    tile[count] = -1;
-                    count++;
+                switch (board[i][j]) {
+                    case BLANK:
+                        tile[count] = 0;
+                        count++;
+                        break;
+                    case CIRCLE:
+                        tile[count] = 1;
+                        count++;
+                        break;
+                    case CROSS:
+                        tile[count] = 2;
+                        count++;
+                        break;
+                    default:
+                        tile[count] = -1;
+                        count++;
+                        break;
                 }
             }
         }

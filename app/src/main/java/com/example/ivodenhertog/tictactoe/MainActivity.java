@@ -2,19 +2,23 @@ package com.example.ivodenhertog.tictactoe;
 
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
 
 
 public class MainActivity extends AppCompatActivity {
 
     // Global variables.
     private Game game;
-    private int[] gridId = new int[9];
+    private final int[] gridId = new int[9];
     private int tileId;
 
     // Function that creates the base game or recreates the game after orientation change.
@@ -42,13 +46,16 @@ public class MainActivity extends AppCompatActivity {
                 Button b = findViewById(resId);
 
                 // Change value of the button.
-                if (status[i] == 0) {
-                } else if (status[i] == 1) {
-                    b.setBackgroundResource(R.mipmap.circle);
-                } else if (status[i] == 2) {
-                    b.setBackgroundResource(R.mipmap.cross);
-                } else {
-                    Log.e("Error", "No valid return provided");
+                switch (status[i]) {
+                    case 1:
+                        b.setBackgroundResource(R.mipmap.circle);
+                        break;
+                    case 2:
+                        b.setBackgroundResource(R.mipmap.cross);
+                        break;
+                    default:
+                        Log.e("Error", "No valid return provided");
+                        break;
                 }
             }
         }
@@ -92,39 +99,75 @@ public class MainActivity extends AppCompatActivity {
         Tile tile = game.draw(col, row);
 
         // Check if move is winning move.
-        Boolean hasWon = game.checkScore(col, row, tile);
+        GameState hasWon = game.checkScore(col, row, tile);
 
         // Depending on result of draw method, update selected button, use switch to update selected button
-        Button b = (Button) findViewById(gridId[tileId]);
+        Button b = findViewById(gridId[tileId]);
         switch (tile) {
             case CROSS:
                 b.setBackgroundResource(R.mipmap.cross);
-                if (hasWon) {
-                    // Print a toast when player wins.
-                    Toast.makeText(this, R.string.player_one_won,
-                            Toast.LENGTH_LONG).show();
-                    Log.i("MSG", "Player one won");
+                if (hasWon == GameState.WON) {
+                    // Print a toast with centered text when player wins.
+                    Toast toast = Toast.makeText(this, R.string.player_one_won,
+                            Toast.LENGTH_LONG);
+                    LinearLayout layout = (LinearLayout) toast.getView();
+                    if (layout.getChildCount() > 0) {
+                        TextView tv = (TextView) layout.getChildAt(0);
+                        tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+                    }
+                    toast.show();
+                    Log.i("Game over", "Player one won");
                 }
                 break;
             case CIRCLE:
                 b.setBackgroundResource(R.mipmap.circle);
-                if (hasWon) {
-                    // Print a toast when player wins
-                    Toast.makeText(this, R.string.player_two_won,
-                            Toast.LENGTH_LONG).show();
+                if (hasWon == GameState.WON) {
+                    // Print a toast with centered text when player wins
+                    Toast toast = Toast.makeText(this, R.string.player_two_won,
+                            Toast.LENGTH_LONG);
+                    LinearLayout layout = (LinearLayout) toast.getView();
+                    if (layout.getChildCount() > 0) {
+                        TextView tv = (TextView) layout.getChildAt(0);
+                        tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+                    }
+                    toast.show();
                     Log.i("Game over", "Player two won");
                 }
                 break;
             case INVALID:
-                // Print a toast when proposed move is invalid.
-                Toast.makeText(this, R.string.invalid_move,
-                        Toast.LENGTH_SHORT).show();
-                Log.e("Error", "Invalid move");
+                if (hasWon == GameState.DRAW) {
+                    // Print a toast with centered text when proposed move is invalid and game is draw.
+                    Toast toast = Toast.makeText(this, R.string.draw,
+                            Toast.LENGTH_LONG);
+                    LinearLayout layout = (LinearLayout) toast.getView();
+                    if (layout.getChildCount() > 0) {
+                        TextView tv = (TextView) layout.getChildAt(0);
+                        tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+                    }
+                    toast.show();
+                    Log.e("Error", "Draw - reset game");
+                } else {
+                    // Print a toast with centered text when proposed move is invalid.
+                    Toast toast = Toast.makeText(this, R.string.invalid_move,
+                            Toast.LENGTH_SHORT);
+                    LinearLayout layout = (LinearLayout) toast.getView();
+                    if (layout.getChildCount() > 0) {
+                        TextView tv = (TextView) layout.getChildAt(0);
+                        tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+                    }
+                    toast.show();
+                    Log.e("Error", "Invalid move");
+                }
                 break;
             case GAMEOVER:
-                // Print a toast when proposed move is done after game is over.
-                Toast.makeText(this, R.string.game_over,
-                        Toast.LENGTH_SHORT).show();
+                // Print a toast with centered text when proposed move is done after game is over.
+                Toast toast = Toast.makeText(this, R.string.game_over, Toast.LENGTH_SHORT);
+                LinearLayout layout = (LinearLayout) toast.getView();
+                if (layout.getChildCount() > 0) {
+                    TextView tv = (TextView) layout.getChildAt(0);
+                    tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+                }
+                toast.show();
                 Log.e("Error", "Game Over - reset game");
                 break;
         }
@@ -164,5 +207,4 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-    // Todo: Create switch mode from Player vs Player to Player vs Computer.
 }

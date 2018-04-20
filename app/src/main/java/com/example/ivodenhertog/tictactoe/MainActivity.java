@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Based on state of the tile the button will be changed to correct image.
             for (int i = 0; i < status.length; i++) {
+                Log.v("Verbose", "" + status[i]);
                 // Get Id of relevant button.
                 String buttonId = "button" + (i + 1);
                 int resId = getResources().getIdentifier(buttonId, "id", getPackageName());
@@ -42,13 +43,10 @@ public class MainActivity extends AppCompatActivity {
 
                 // Change value of the button.
                 if (status[i] == 0) {
-                    Log.i("Status", "Blank");
                 } else if (status[i] == 1) {
                     b.setBackgroundResource(R.mipmap.circle);
-                    Log.i("Status", "Circle");
                 } else if (status[i] == 2) {
                     b.setBackgroundResource(R.mipmap.cross);
-                    Log.i("Status", "Cross");
                 } else {
                     Log.e("Error", "No valid return provided");
                 }
@@ -77,6 +75,72 @@ public class MainActivity extends AppCompatActivity {
         outState.putSerializable("game", game);
     }
 
+    // Function that handles the onClick event.
+    public void tileClicked(View view) {
+        // Get id of pressed button and use id to get number of the button.
+        int id = view.getId();
+        for (int i = 0, l = gridId.length; i < l; i++) {
+            if (gridId[i] == id)
+                tileId = i;
+        }
+
+        // Determine row and column of selected tile.
+        int row = tileId / 3;
+        int col = tileId % 3;
+
+        // Feed coordinates to Games draw method:
+        Tile tile = game.draw(col, row);
+
+        // Check if move is winning move.
+        Boolean hasWon = game.checkScore(col, row, tile);
+
+        // Depending on result of draw method, update selected button, use switch to update selected button
+        Button b = (Button) findViewById(gridId[tileId]);
+        switch (tile) {
+            case CROSS:
+                b.setBackgroundResource(R.mipmap.cross);
+                if (hasWon) {
+                    // Print a toast when player wins.
+                    Toast.makeText(this, R.string.player_one_won,
+                            Toast.LENGTH_LONG).show();
+                    Log.i("MSG", "Player one won");
+                }
+                break;
+            case CIRCLE:
+                b.setBackgroundResource(R.mipmap.circle);
+                if (hasWon) {
+                    // Print a toast when player wins
+                    Toast.makeText(this, R.string.player_two_won,
+                            Toast.LENGTH_LONG).show();
+                    Log.i("Game over", "Player two won");
+                }
+                break;
+            case INVALID:
+                // Print a toast when proposed move is invalid.
+                Toast.makeText(this, R.string.invalid_move,
+                        Toast.LENGTH_SHORT).show();
+                Log.e("Error", "Invalid move");
+                break;
+            case GAMEOVER:
+                // Print a toast when proposed move is done after game is over.
+                Toast.makeText(this, R.string.game_over,
+                        Toast.LENGTH_SHORT).show();
+                Log.e("Error", "Game Over - reset game");
+                break;
+        }
+    }
+
+    // Reset function for on-screen reset button.
+    public void resetClicked(View view) {
+        resetClicked();
+    }
+
+    // Reset function for reset via menu.
+    private void resetClicked() {
+        game = new Game();
+        setContentView(R.layout.activity_main);
+    }
+
     // Function to create on-screen menu.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -99,51 +163,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    // Function that handles the onClick event.
-    public void tileClicked(View view) {
-        // Get id of pressed button and use id to get number of the button.
-        int id = view.getId();
-        for (int i = 0, l = gridId.length; i < l; i++) {
-            if (gridId[i] == id)
-                tileId = i;
-        }
-
-        // Determine row and column of selected tile.
-        int row = tileId / 3;
-        int col = tileId % 3;
-
-        // Feed coordinates to Games draw method:
-        Tile tile = game.draw(row, col);
-
-        // Depending on result of draw method, update selected button, use switch to update selected button
-        Button b = (Button) findViewById(gridId[tileId]);
-        switch (tile) {
-            case CROSS:
-                b.setBackgroundResource(R.mipmap.cross);
-                break;
-            case CIRCLE:
-                b.setBackgroundResource(R.mipmap.circle);
-                break;
-            case INVALID:
-                // Print a toast when proposed move is invalid.
-                Toast.makeText(this, "Invalid move! Please try again!",
-                        Toast.LENGTH_SHORT).show();
-                Log.e("Error", "Invalid move");
-                break;
-        }
-    }
-
-    // Reset function for on-screen reset button.
-    public void resetClicked(View view) {
-        resetClicked();
-    }
-
-    // Reset function for reset via menu.
-    private void resetClicked() {
-        game = new Game();
-        setContentView(R.layout.activity_main);
     }
     // Todo: Create switch mode from Player vs Player to Player vs Computer.
 }

@@ -4,4 +4,8 @@
     <string name="about">About</string>
     <string name="exit">Exit</string>
     <string name="about_toast">This app is made as an assignment for the minor Programmeren.</string>
+    <string name="player_one_won">Congratulations! Player One has won the game!</string>
+    <string name="player_two_won">Congratulations! Player Two has won the game!</string>
+    <string name="invalid_move">Invalid move! Please try again!</string>
+    <string name="game_over">The Game is already over, please press reset to try again!</string>
 </resources>
